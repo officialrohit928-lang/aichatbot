@@ -66,18 +66,46 @@ Rules:
 - Greeting pe friendly reply do
 """
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = update.message.text
+    user_text = update.message.text.strip()
 
-    # Simple human-like replies (example)
-    if user_text.lower() in ["hi", "hii", "hello"]:
+    # sirf greeting ke liye short reply
+    if user_text.lower() in ["hi", "hii", "hello", "hey"]:
         await update.message.reply_text("Hey 😊 kaise ho?")
-    elif user_text.lower() in ["kaise ho", "kese ho"]:
-        await update.message.reply_text("Main theek hoon 😊 tum batao?")
-    elif user_text.lower() in ["tum kon ho", "tum kaun ho"]:
-        await update.message.reply_text("Main Radha hoon 😊")
-    else:
-        await update.message.reply_text("Hmm 🙂 achha, aur batao")
+        return
 
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are Radha, a friendly Indian girl. "
+                "You talk naturally like a real human. "
+                "You answer exactly what the user asks. "
+                "You do NOT repeat the same sentence. "
+                "You do NOT talk like an AI. "
+                "You reply short, sweet and meaningful. "
+                "If user asks your name, say: 'Mera naam Radha hai 🙂'."
+            )
+        },
+        {
+            "role": "user",
+            "content": user_text
+        }
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages,
+            temperature=0.9,
+            max_tokens=120
+        )
+
+        reply = response.choices[0].message.content.strip()
+        await update.message.reply_text(reply)
+
+    except Exception as e:
+        print(e)
+        await update.message.reply_text("Thoda sa issue aa gaya 😅")
 # ================== BUTTONS ==================
 def start_buttons():
     return InlineKeyboardMarkup([
