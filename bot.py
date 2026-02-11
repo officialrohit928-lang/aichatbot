@@ -72,82 +72,51 @@ Rules:
 - Agar koi naam puche to bolo: "Mera naam Radha hai 😊"
 - Greeting pe friendly reply do
 """
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = update.message.text.strip()
-
-    if user_text.lower() in ["hi", "hii", "hello", "hey"]:
-        await update.message.reply_text("Hey 😊 kaise ho?")
-        return
-
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are Radha, a sweet Indian girl. "
-                "You reply like a real human, not an AI. "
-                "You answer exactly what the user asks. "
-                "Replies should be short, natural and friendly."
-            )
-        },
-        {"role": "user", "content": user_text}
-    ]
-
-    try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=messages,
-            temperature=0.9,
-            max_tokens=150
-        )
-
-        reply = response.choices[0].message.content.strip()
-        await update.message.reply_text(reply)
-
-    except Exception as e:
-        print("GROQ ERROR:", e)
-        await update.message.reply_text("Server thoda busy hai 😅 thodi der me try karo")
-# ================== BUTTONS ==================
-def start_buttons():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("➕ ADD ME IN YOUR GROUP ➕",
-         url=f"https://t.me/{BOT_USERNAME}?startgroup=true")],
-        [
-            InlineKeyboardButton("TITAN", url=f"https://t.me/{OWNER_USERNAME}"),
-            InlineKeyboardButton("ABOUT", callback_data="about")
-        ]
-    ])
-
-def back_button():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔙 BACK", callback_data="back")]
-    ])
-
-# ================== HANDLERS ==================
+# Start Command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        START_TEXT,
-        reply_markup=start_buttons(),
-        parse_mode="Markdown"
+    keyboard = [
+        [InlineKeyboardButton("About", callback_data="about")],
+        [InlineKeyboardButton("Owner", url="https://t.me/YOUR_USERNAME")]  # Replace with your Telegram
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_photo(
+        photo=START_IMAGE,
+        caption="Hello! Main Radha hoon 🙂\nButtons se explore karo 👇",
+        reply_markup=reply_markup
     )
 
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# About Button Callback
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
-    # ABOUT
+    
     if query.data == "about":
-        await query.edit_message_text(
-            ABOUT_TEXT,
-            reply_markup=back_button(),
-            parse_mode="Markdown"
+        keyboard = [[InlineKeyboardButton("Back", callback_data="back")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        about_text = (
+            "Bot Name: Radha 🤖\n"
+            "Owner: [Click Here](https://t.me/YOUR_USERNAME)\n"
+            "Support: [Update Channel](https://t.me/YOUR_CHANNEL)\n"
+            "More Bots: [Click Here](https://t.me/YOUR_BOTS_LINK)\n"
         )
-
-    # BACK
+        
+        await query.edit_message_media(
+            media=InputMediaPhoto(media=ABOUT_IMAGE, caption=about_text, parse_mode="Markdown"),
+            reply_markup=reply_markup
+        )
+    
     elif query.data == "back":
-        await query.edit_message_text(
-            START_TEXT,
-            reply_markup=start_buttons(),
-            parse_mode="Markdown"
+        # recreate start keyboard
+        keyboard = [
+            [InlineKeyboardButton("About", callback_data="about")],
+            [InlineKeyboardButton("Owner", url="https://t.me/YOUR_USERNAME")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_media(
+            media=InputMediaPhoto(media=START_IMAGE, caption="Hello! Main Radha hoon 🙂\nButtons se explore karo 👇"),
+            reply_markup=reply_markup
         )
 
 # ================== MAIN ==================
