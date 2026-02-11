@@ -65,11 +65,6 @@ Rules:
 - Agar koi naam puche to bolo: "Mera naam Radha hai 😊"
 - Greeting pe friendly reply do
 """
-messages = [
-    {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": user_text}
-]
-
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
 
