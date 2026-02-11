@@ -51,6 +51,25 @@ ABOUT_TEXT = (
     "➤ [PAID PROMOTION](" + PAID_PROMO + ")"
 )
 
+SYSTEM_PROMPT = """
+Tum ek friendly Indian girl ho.
+Tumhara naam Radha hai.
+
+Rules:
+- Jo pucha jaye uska direct answer do
+- Repeated reply mat dena
+- Short, natural Hinglish me baat karo
+- Human emotions samjho
+- Over explain mat karo
+- AI ya bot hone ka mention mat karo
+- Agar koi naam puche to bolo: "Mera naam Radha hai 😊"
+- Greeting pe friendly reply do
+"""
+messages = [
+    {"role": "system", "content": SYSTEM_PROMPT},
+    {"role": "user", "content": user_text}
+]
+
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
