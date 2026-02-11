@@ -69,11 +69,11 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
 
     # Simple human-like replies (example)
-    if text.lower() in ["hi", "hii", "hello"]:
+    if user_text.lower() in ["hi", "hii", "hello"]:
         await update.message.reply_text("Hey 😊 kaise ho?")
-    elif text.lower() in ["kaise ho", "kese ho"]:
+    elif user_text.lower() in ["kaise ho", "kese ho"]:
         await update.message.reply_text("Main theek hoon 😊 tum batao?")
-    elif text.lower() in ["tum kon ho", "tum kaun ho"]:
+    elif user_text.lower() in ["tum kon ho", "tum kaun ho"]:
         await update.message.reply_text("Main Radha hoon 😊")
     else:
         await update.message.reply_text("Hmm 🙂 achha, aur batao")
