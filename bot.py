@@ -1,116 +1,96 @@
 import os
-from telegram.ext import filters
+import time
+import psutil
+from datetime import datetime
 from telegram import (
-    Update,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup
+    Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 )
 from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    CallbackQueryHandler,
-    ContextTypes,
-    MessageHandler
+    ApplicationBuilder, CommandHandler, MessageHandler,
+    CallbackQueryHandler, ContextTypes, filters
 )
-
-# ================== CONFIG ==================
-BOT_TOKEN = "8168458901:AAHYY3r_B37PdUBdyABaFw7njJKWjFfBzno"
-# Start Image URL
-START_IMAGE = "https://files.catbox.moe/h8wo87.jpg"  # Replace with your start image link
-ABOUT_IMAGE = "https://files.catbox.moe/2ghxh0.jpg"  # Replace with your about image link
-
-import os
 from groq import Groq
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# --- CONFIG ---
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 
-BOT_USERNAME = "RadhaSharma_bot"     # without @
-OWNER_USERNAME = "Yourx_Titan"      # without @
+BOT_START_TIME = time.time()
 
-UPDATE_CHANNEL = "https://t.me/Yourx_shadow"
-SUPPORT_CHAT = "https://t.me/+RHx822f_tV0wZTZl"
-MORE_BOTS = "https://t.me/Yourx_shadow"
-PAID_PROMO = f"https://t.me/{OWNER_USERNAME}"
-
-
-# ================== TEXT ==================
-START_TEXT = (
-    "❖ HEY I'M **Radha 🐵**\n\n"
-    "⟡ An AI based chat-bot.\n\n"
-    "» Chat like human (DM + Group) 😘\n"
-    "» No abuse, no ads, zero downtime.\n"
-    "» Powerful & useful features.\n\n"
-    "➜ Use buttons below ⬇"
-)
-
-ABOUT_TEXT = (
-    f"❖ [**Radha 🐵**](https://t.me/{BOT_USERNAME}) — AN AI BASED CHAT-BOT\n"
-    "CHAT LIKE HUMAN (DM + GROUP) 😘\n\n"
-    "━━━━━━━━━━━━━━\n\n"
-    "• **WRITTEN IN** » PYTHON\n"
-    "• **DATABASE** » MONGO-DB\n"
-    "• **HELP WITH** » PYROGRAM\n\n"
-    "━━━━━━━━━━━━━━\n\n"
-    "◆ UPDATES CHANNEL ➜ [SHADOW](" + UPDATE_CHANNEL + ")\n"
-    "◆ SUPPORT CHAT ➜ [Radha support](" + SUPPORT_CHAT + ")\n\n"
-    "━━━━━━━━━━━━━━\n\n"
-    "➤ [BOT STATUS & MORE BOTS](" + MORE_BOTS + ")\n"
-    "➤ [PAID PROMOTION](" + PAID_PROMO + ")"
-)
-
+# --- SYSTEM PROMPT for AI ---
 SYSTEM_PROMPT = """
-Tum ek friendly Indian girl ho.
-Tumhara naam Radha hai.
-
-Rules:
-- Jo pucha jaye uska direct answer do
-- Repeated reply mat dena
-- Short, natural Hinglish me baat karo
-- Human emotions samjho
-- Over explain mat karo
-- AI ya bot hone ka mention mat karo
-- Agar koi naam puche to bolo: "Mera naam Radha hai 😊"
-- Greeting pe friendly reply do
+You are Radha, a friendly Indian girl. 
+Talk naturally like a real human in Hindi/Hinglish.
+Answer exactly what user asks. 
+Do not repeat sentences. 
+Do not mention AI. 
+Short, friendly replies. 
+If user asks your name, say: 'Mera naam Radha hai 🙂'.
 """
-# Start Command
+
+# --- IMAGES ---
+START_IMAGE = "https://i.imgur.com/START_IMAGE.jpg"  # Replace with your start image URL
+ABOUT_IMAGE = "https://i.imgur.com/ABOUT_IMAGE.jpg"  # Replace with your about image URL
+HELP_IMAGE = "https://i.imgur.com/HELP_IMAGE.jpg"    # Replace with help image URL
+
+# --- START COMMAND ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("About", callback_data="about")],
+        [
+            InlineKeyboardButton("About", callback_data="about"),
+            InlineKeyboardButton("Help", callback_data="help")
+        ],
         [InlineKeyboardButton("Owner", url="https://t.me/YOUR_USERNAME")]  # Replace with your Telegram
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
+
     await update.message.reply_photo(
         photo=START_IMAGE,
         caption="Hello! Main Radha hoon 🙂\nButtons se explore karo 👇",
         reply_markup=reply_markup
     )
 
-# About Button Callback
+# --- BUTTON CALLBACK ---
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    
+
     if query.data == "about":
         keyboard = [[InlineKeyboardButton("Back", callback_data="back")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        
         about_text = (
-            "Bot Name: Radha 🤖\n"
-            "Owner: [Click Here](https://t.me/YOUR_USERNAME)\n"
-            "Support: [Update Channel](https://t.me/YOUR_CHANNEL)\n"
-            "More Bots: [Click Here](https://t.me/YOUR_BOTS_LINK)\n"
+            "*Bot Name:* [Radha](https://t.me/YOUR_BOT_USERNAME)\n"
+            "*Owner:* [Click Here](https://t.me/YOUR_USERNAME)\n"
+            "*Support:* [Update Channel](https://t.me/YOUR_CHANNEL)\n"
+            "*More Bots:* [Click Here](https://t.me/YOUR_BOTS_LINK)\n"
         )
-        
         await query.edit_message_media(
             media=InputMediaPhoto(media=ABOUT_IMAGE, caption=about_text, parse_mode="Markdown"),
             reply_markup=reply_markup
         )
-    
+
+    elif query.data == "help":
+        keyboard = [[InlineKeyboardButton("Back", callback_data="back")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        help_text = (
+            "*Radha Help Guide*\n"
+            "1. Chat naturally with Radha.\n"
+            "2. Click Owner to see developer.\n"
+            "3. Use About to see info.\n"
+            "4. Use Help to see this message again."
+        )
+        await query.edit_message_media(
+            media=InputMediaPhoto(media=HELP_IMAGE, caption=help_text, parse_mode="Markdown"),
+            reply_markup=reply_markup
+        )
+
     elif query.data == "back":
-        # recreate start keyboard
         keyboard = [
-            [InlineKeyboardButton("About", callback_data="about")],
+            [
+                InlineKeyboardButton("About", callback_data="about"),
+                InlineKeyboardButton("Help", callback_data="help")
+            ],
             [InlineKeyboardButton("Owner", url="https://t.me/YOUR_USERNAME")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -119,15 +99,48 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
 
-# ================== MAIN ==================
+# --- CHAT HANDLER ---
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_text = update.message.text.strip()
+
+    if user_text.lower() in ["hi", "hii", "hello", "hey"]:
+        await update.message.reply_text("Hey 😊 kaise ho?")
+        return
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_text}
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages,
+            temperature=0.9,
+            max_tokens=150
+        )
+        reply = response.choices[0].message.content.strip()
+        await update.message.reply_text(reply)
+    except Exception as e:
+        print("GROQ ERROR:", e)
+        await update.message.reply_text("Server busy hai 😅 thodi der me try karo")
+
+# --- STATS COMMAND ---
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uptime_sec = int(time.time() - BOT_START_TIME)
+    uptime_str = f"{uptime_sec//3600}h {(uptime_sec%3600)//60}m {uptime_sec%60}s"
+    mem = psutil.virtual_memory()
+    msg = f"*Ping:* ✅\n*Uptime:* {uptime_str}\n*Memory Used:* {round(mem.used/1024/1024)}MB"
+    await update.message.reply_text(msg, parse_mode="Markdown")
+
+# --- MAIN ---
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_handler))
+    app.add_handler(CommandHandler("stats", stats))
+    app.add_handler(CallbackQueryHandler(button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
-
-    print("Bot started...")
+    print("Bot is running...")
     app.run_polling()
 
 if __name__ == "__main__":
