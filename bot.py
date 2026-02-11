@@ -71,7 +71,7 @@ messages = [
 ]
 
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+    user_text = update.message.text
 
     # Simple human-like replies (example)
     if text.lower() in ["hi", "hii", "hello"]:
