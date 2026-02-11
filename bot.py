@@ -15,6 +15,9 @@ from telegram.ext import (
 
 # ================== CONFIG ==================
 BOT_TOKEN = "8168458901:AAHYY3r_B37PdUBdyABaFw7njJKWjFfBzno"
+# Start Image URL
+START_IMAGE = "https://files.catbox.moe/h8wo87.jpg"  # Replace with your start image link
+ABOUT_IMAGE = "https://files.catbox.moe/2ghxh0.jpg"  # Replace with your about image link
 
 import os
 from groq import Groq
