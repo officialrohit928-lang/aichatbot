@@ -1,15 +1,18 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
-import os
+from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 import requests
+import os
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+if not BOT_TOKEN or not GROQ_API_KEY:
+    raise RuntimeError("ENV VARS MISSING")
 
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = update.message.text
+URL = "https://api.groq.com/openai/v1/chat/completions"
+
+async def reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -18,21 +21,19 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     data = {
         "model": "llama3-8b-8192",
-        "messages": [
-            {"role": "system", "content": "You are a helpful AI assistant."},
-            {"role": "user", "content": user_text}
-        ],
+        "messages": [{"role": "user", "content": text}],
         "temperature": 0.7
     }
 
     try:
-        r = requests.post(GROQ_URL, headers=headers, json=data, timeout=20)
-        reply = r.json()["choices"][0]["message"]["content"]
-    except:
-        reply = "⚠️ AI busy hai, thodi der baad try karo."
+        r = requests.post(URL, headers=headers, json=data, timeout=15)
+        res = r.json()
+        msg = res["choices"][0]["message"]["content"]
+    except Exception as e:
+        msg = "AI error, try again later."
 
-    await update.message.reply_text(reply)
+    await update.message.reply_text(msg)
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply))
 app.run_polling()
