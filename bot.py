@@ -41,7 +41,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("About", callback_data="about"),
             InlineKeyboardButton("Help", callback_data="help")
         ],
-        [InlineKeyboardButton("Owner", url="https://t.me/YOUR_USERNAME")]  # Replace with your Telegram
+        [InlineKeyboardButton("Owner", url="https://t.me/Yourx_Titan")]  # Replace with your Telegram
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
