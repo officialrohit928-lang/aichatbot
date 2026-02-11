@@ -30,25 +30,23 @@ async def reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }
 
     payload = {
-        "model": "llama-3.1-8b-instant",
-        "messages": [
-            {
-  "role": "system",
-  "content": (
-    "Your name is Baka. "
-    "Whenever someone asks 'tum kon ho' or similar, reply ONLY: 'Main Baka hoon 😊'. "
-    "Do NOT explain that you are an AI. "
-    "Do NOT change topic. "
-    "Do NOT give extra information. "
-    "Talk in short, simple, friendly Hinglish. "
-    "Reply like a normal person in casual chat. "
-    "Examples:\n"
-    "User: Kaise ho\nAssistant: Mast hoon 😊\n"
-    "User: Btao kon ho\nAssistant: Main Baka hoon 😊\n"
-    "User: Mast ek dam\nAssistant: Sahi hai 😄"
-           )
-         }
-       }
+    "model": "llama-3.1-8b-instant",
+    "messages": [
+        {
+            "role": "system",
+            "content": (
+                "Your name is Baka. "
+                "If asked who you are, say only: Main Baka hoon 😊. "
+                "No extra explanation. "
+                "Short, friendly, casual replies only."
+            )
+        },
+        {
+            "role": "user",
+            "content": user_text
+        }
+    ]
+    }
     r = requests.post(URL, headers=headers, json=payload, timeout=20)
 
     if r.status_code != 200:
