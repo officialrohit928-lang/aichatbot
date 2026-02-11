@@ -7,11 +7,13 @@ from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
     CallbackQueryHandler,
-    ContextTypes
+    ContextTypes,
+    MessageHandler
 )
 
 # ================== CONFIG ==================
 BOT_TOKEN = "8168458901:AAHYY3r_B37PdUBdyABaFw7njJKWjFfBzno"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 BOT_USERNAME = "RadhaSharma_bot"     # without @
 OWNER_USERNAME = "Yourx_Titan"      # without @
@@ -46,6 +48,19 @@ ABOUT_TEXT = (
     "➤ [BOT STATUS & MORE BOTS](" + MORE_BOTS + ")\n"
     "➤ [PAID PROMOTION](" + PAID_PROMO + ")"
 )
+
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+
+    # Simple human-like replies (example)
+    if text.lower() in ["hi", "hii", "hello"]:
+        await update.message.reply_text("Hey 😊 kaise ho?")
+    elif text.lower() in ["kaise ho", "kese ho"]:
+        await update.message.reply_text("Main theek hoon 😊 tum batao?")
+    elif text.lower() in ["tum kon ho", "tum kaun ho"]:
+        await update.message.reply_text("Main Radha hoon 😊")
+    else:
+        await update.message.reply_text("Hmm 🙂 achha, aur batao")
 
 # ================== BUTTONS ==================
 def start_buttons():
@@ -97,6 +112,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
     print("Bot started...")
     app.run_polling()
