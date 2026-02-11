@@ -21,13 +21,8 @@ async def reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_text:
         return
 
-    # memory init
-    if user_id not in user_memory:
-        user_memory[user_id] = []
-
-    # last 6 messages hi rakhenge (context limit)
-    user_memory[user_id].append({"role": "user", "content": user_text})
-    user_memory[user_id] = user_memory[user_id][-6:]
+    # sirf last 2 messages ka context
+    user_memory[user_id] = [{"role": "user", "content": user_text}]
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -40,31 +35,27 @@ async def reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
             {
                 "role": "system",
                 "content": (
-                    "You are a ChatGPT-like AI assistant. "
-                    "Reply exactly according to the user's question. "
-                    "Be clear, logical, and helpful. "
-                    "Do NOT give random or unrelated answers. "
-                    "If the question is technical, explain step by step. "
-                    "Reply in Hinglish if the user uses Hindi/Hinglish."
+                    "You are a friendly, polite AI assistant who talks like a normal girl. "
+                    "Keep replies short, sweet, and casual. "
+                    "No drama, no memories, no emotional claims. "
+                    "Talk naturally like daily chat. "
+                    "Use light emojis."
                 )
-            }
-        ] + user_memory[user_id]
+            },
+            {"role": "user", "content": user_text}
+        ]
     }
 
     r = requests.post(URL, headers=headers, json=payload, timeout=20)
 
     if r.status_code != 200:
-        await update.message.reply_text(f"Groq API error {r.status_code}")
+        await update.message.reply_text("Thoda issue aa raha hai 😅 baad me try karo")
         return
 
     data = r.json()
-    ai_reply = data["choices"][0]["message"]["content"]
+    reply_text = data["choices"][0]["message"]["content"]
 
-    # save assistant reply in memory
-    user_memory[user_id].append({"role": "assistant", "content": ai_reply})
-    user_memory[user_id] = user_memory[user_id][-6:]
-
-    await update.message.reply_text(ai_reply)
+    await update.message.reply_text(reply_text)
     
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply))
