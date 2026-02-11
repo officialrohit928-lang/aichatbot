@@ -15,7 +15,11 @@ from telegram.ext import (
 
 # ================== CONFIG ==================
 BOT_TOKEN = "8168458901:AAHYY3r_B37PdUBdyABaFw7njJKWjFfBzno"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+import os
+from groq import Groq
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 BOT_USERNAME = "RadhaSharma_bot"     # without @
 OWNER_USERNAME = "Yourx_Titan"      # without @
@@ -68,7 +72,6 @@ Rules:
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text.strip()
 
-    # sirf greeting ke liye short reply
     if user_text.lower() in ["hi", "hii", "hello", "hey"]:
         await update.message.reply_text("Hey 😊 kaise ho?")
         return
@@ -77,19 +80,13 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         {
             "role": "system",
             "content": (
-                "You are Radha, a friendly Indian girl. "
-                "You talk naturally like a real human. "
+                "You are Radha, a sweet Indian girl. "
+                "You reply like a real human, not an AI. "
                 "You answer exactly what the user asks. "
-                "You do NOT repeat the same sentence. "
-                "You do NOT talk like an AI. "
-                "You reply short, sweet and meaningful. "
-                "If user asks your name, say: 'Mera naam Radha hai 🙂'."
+                "Replies should be short, natural and friendly."
             )
         },
-        {
-            "role": "user",
-            "content": user_text
-        }
+        {"role": "user", "content": user_text}
     ]
 
     try:
@@ -97,15 +94,15 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
             model="llama-3.1-8b-instant",
             messages=messages,
             temperature=0.9,
-            max_tokens=120
+            max_tokens=150
         )
 
         reply = response.choices[0].message.content.strip()
         await update.message.reply_text(reply)
 
     except Exception as e:
-        print(e)
-        await update.message.reply_text("Thoda sa issue aa gaya 😅")
+        print("GROQ ERROR:", e)
+        await update.message.reply_text("Server thoda busy hai 😅 thodi der me try karo")
 # ================== BUTTONS ==================
 def start_buttons():
     return InlineKeyboardMarkup([
