@@ -19,7 +19,8 @@ OWNER_USERNAME = "Yourx_Titan"      # without @
 UPDATE_CHANNEL = "https://t.me/Yourx_shadow"
 SUPPORT_CHAT = "https://t.me/+RHx822f_tV0wZTZl"
 MORE_BOTS = "https://t.me/Yourx_shadow"
-PAID_PROMO = f"https://t.me/{Yourx_Titan}"
+PAID_PROMO = f"https://t.me/{OWNER_USERNAME}"
+
 
 # ================== TEXT ==================
 START_TEXT = (
